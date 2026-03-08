@@ -1,0 +1,122 @@
+@startuml
+skinparam linetype ortho
+skinparam backgroundColor #FFFEF0
+skinparam roundcorner 15
+skinparam nodesep 120
+skinparam ranksep 120
+skinparam padding 10
+
+skinparam entity {
+    BackgroundColor #FEE08B
+    BorderColor #F46D43
+    HeaderBackgroundColor #FDAE61
+    BorderThickness 2
+}
+
+' === LIGNE 1 : UTILISATEUR - ALBUM - CATEGORIE ===
+entity "Utilisateur" {
+    * idUtilisateur : Int
+    --
+    login : String <<UNIQUE, NOT NULL>>
+    mot_de_passe : String <<NOT NULL>>
+    nom : String
+    prenom : String
+    date_naissance : Date
+    email : String <<UNIQUE, NOT NULL>>
+    pays : String
+    abonne_newsletter : Boolean <<NOT NULL>>
+}
+
+entity "Album" {
+    * idAlbum : Int
+    --
+    titre : String <<NOT NULL>>
+    description : Text
+    date_creation : Timestamp <<NOT NULL>>
+    visibilite : String <<NOT NULL>>
+}
+
+entity "Categorie" {
+    * idCategorie : Int
+    --
+    nom : String <<UNIQUE, NOT NULL>>
+}
+
+' === LIGNE 2 : AIME - IMAGE - LABEL ===
+entity "Aime" {
+    * idUtilisateur : Int
+    * idImage : Int
+    --
+    date_aime : Timestamp <<NOT NULL>>
+}
+
+entity "Image" {
+    * idImage : Int
+    --
+    titre : String <<NOT NULL>>
+    description : Text
+    date_publication : Timestamp <<NOT NULL>>
+    format : String
+    taille : Int
+    visibilite : String <<NOT NULL>>
+    pays_origine : String
+    telechargeable : Boolean <<NOT NULL>>
+}
+
+entity "Label" {
+    * idLabel : Int
+    --
+    nom : String <<UNIQUE, NOT NULL>>
+}
+
+' === LIGNE 3 : COMMENTAIRE - NEWSLETTER - IMAGE_ARCHIVE ===
+entity "Commentaire" {
+    * idCommentaire : Int
+    --
+    texte_commentaire : Text <<NOT NULL>>
+    date_commentaire : Timestamp <<NOT NULL>>
+    idUtilisateur : Int <<NOT NULL>>
+    idImage : Int <<NOT NULL>>
+}
+
+entity "Newsletter" {
+    * idNewsletter : Int
+    --
+    date_envoi : Date <<NOT NULL>>
+    contenu : Text <<NOT NULL>>
+}
+
+entity "Image_archive" {
+    * idImageArchive : Int
+    --
+    titre : String
+    description : Text
+    date_publication : Timestamp
+    format : String
+    taille : Int
+    visibilite : String
+    pays_origine : String
+    telechargeable : Boolean
+    date_archivage : Timestamp <<NOT NULL>>
+}
+
+' === RELATIONS LIGNE 1 ===
+Utilisateur "1  " -right- "  0..N" Album : "  Possede  "
+Utilisateur "0..N  " -right- "  0..N" Categorie : "  Prefere  "
+
+' === RELATIONS VERTICALES GAUCHE ===
+Utilisateur "1  " -down- "  0..N" Aime
+Utilisateur "1  " -down- "  0..N" Commentaire
+
+' === RELATIONS VERTICALES CENTRE ===
+Album "1  " -down- "  0..N" Image : "  Contient  "
+Categorie "1  " -down- "  0..N" Image : "  Categorise  "
+
+' === RELATIONS LIGNE 2 ===
+Aime "0..N  " -right- "  1" Image
+Image "0..N  " -right- "  0..N" Label : "  Etiquette  "
+
+' === RELATIONS LIGNE 3 ===
+Commentaire "0..N  " -right- "  1" Image
+Newsletter "0..N  " -up- "  0..N" Image : "  Met_en_avant  "
+@enduml
